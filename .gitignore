@@ -1,0 +1,5 @@
+PCR-*
+.build/*
+perltidy.LOG
+cover_db/*
+
