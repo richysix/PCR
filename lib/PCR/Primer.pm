@@ -1,4 +1,9 @@
+## no critic (RequireUseStrict, RequireUseWarnings, RequireTidyCode)
 package PCR::Primer;
+## use critic
+
+# ABSTRACT: Primer object - object representing a PCR primer
+
 use namespace::autoclean;
 use Moose;
 use Moose::Util::TypeConstraints;

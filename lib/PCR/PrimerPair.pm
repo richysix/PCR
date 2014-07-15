@@ -1,4 +1,9 @@
+## no critic (RequireUseStrict, RequireUseWarnings, RequireTidyCode)
 package PCR::PrimerPair;
+## use critic
+
+# ABSTRACT: PrimerPair object - object representing a pair of PCR primers
+
 use PCR::Primer;
 use namespace::autoclean;
 use Moose;
