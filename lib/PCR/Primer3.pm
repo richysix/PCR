@@ -116,7 +116,7 @@ sub setAmpInput { #setAmpInput(@[id, seq], $target_position, $target_size, $prod
     my @params;
     #$id = $self->cfg->{'gene_id'} unless defined $id;
     my $file = $out_dir? "$out_dir/AmpForDesign_${id}_$settings.txt" : $self->cfg->{'exp-path'} . $self->cfg->{'tmp-path'}."AmpForDesign_$id"."_$settings.txt";
-    open(OUTPUT, "> $file") or die "can't open $file: $!\n";
+    open my $out_fh, '>', $file or die "can't open $file: $!\n";
     push @params, join("=", 'PRIMER_THERMODYNAMIC_PARAMETERS_PATH',
                             $self->cfg->{'Primer3-config'} ) . "\n";
     foreach my $param (keys %{$self->cfg}) {
@@ -127,37 +127,37 @@ sub setAmpInput { #setAmpInput(@[id, seq], $target_position, $target_size, $prod
             push(@params, $param) if $param =~ m/^PRIMER\_/;
         }
     }
-    print OUTPUT join('', @params) if @params;
+    print {$out_fh} join('', @params) if @params;
     foreach my $input (@{$ampinput}) {
         if (!defined $input->[7]) {
-            print OUTPUT "PRIMER_PRODUCT_SIZE_RANGE=" . $product_size . "\n" if defined $product_size;
+            print {$out_fh} "PRIMER_PRODUCT_SIZE_RANGE=" . $product_size . "\n" if defined $product_size;
         } elsif (defined $product_size) {
             my ($start, $end) = split /-/, $product_size;
-            print OUTPUT "PRIMER_PRODUCT_SIZE_RANGE=" . ($start + $input->[7]) . '-' . ($end + $input->[7]) . "\n";
+            print {$out_fh} "PRIMER_PRODUCT_SIZE_RANGE=" . ($start + $input->[7]) . '-' . ($end + $input->[7]) . "\n";
         }
-        print OUTPUT "SEQUENCE_ID=" . $input->[0] . "\n" if defined $input->[0];
-        print OUTPUT "SEQUENCE_TEMPLATE=" . $input->[1] . "\n";
-        print OUTPUT "PRIMER_LEFT_INPUT=" . $input->[2] ."\n" if defined $input->[2];
-        print OUTPUT "PRIMER_RIGHT_INPUT=" . $input->[3] ."\n" if defined $input->[3];
-        print OUTPUT "INCLUDED_REGION=" . $input->[6][0] . "," . $input->[6][1] . "\n" if defined $input->[6];
+        print {$out_fh} "SEQUENCE_ID=" . $input->[0] . "\n" if defined $input->[0];
+        print {$out_fh} "SEQUENCE_TEMPLATE=" . $input->[1] . "\n";
+        print {$out_fh} "PRIMER_LEFT_INPUT=" . $input->[2] ."\n" if defined $input->[2];
+        print {$out_fh} "PRIMER_RIGHT_INPUT=" . $input->[3] ."\n" if defined $input->[3];
+        print {$out_fh} "INCLUDED_REGION=" . $input->[6][0] . "," . $input->[6][1] . "\n" if defined $input->[6];
         
         if (defined $target_pos && defined $target_size) {
-            print OUTPUT "SEQUENCE_TARGET=" . $target_pos . "," . $target_size . "\n" if defined $target_pos && defined $target_size;
+            print {$out_fh} "SEQUENCE_TARGET=" . $target_pos . "," . $target_size . "\n" if defined $target_pos && defined $target_size;
         } elsif (defined $input->[4]) {
             foreach (@{$input->[4]}) {
-                print OUTPUT "SEQUENCE_TARGET=" . $_->[0] . "," . $_->[1] . "\n";
+                print {$out_fh} "SEQUENCE_TARGET=" . $_->[0] . "," . $_->[1] . "\n";
             }
         }
         
         if (defined $input->[5]) {
             foreach (@{$input->[5]}) {
-                print OUTPUT "SEQUENCE_EXCLUDED_REGION=" . $_->[0] . "," . $_->[1] . "\n";
+                print {$out_fh} "SEQUENCE_EXCLUDED_REGION=" . $_->[0] . "," . $_->[1] . "\n";
             }
         }
         
-        print OUTPUT "=\n";
+        print {$out_fh} "=\n";
     }
-    close(OUTPUT);
+    close($out_fh);
     
     return $file;
 }
@@ -178,7 +178,8 @@ sub primer3 { # primer3($file);
     my $self = shift;
     my $file = shift;
     my $output = shift;
-    my $pid = open(PRIMER, $self->cfg->{'Primer3-bin'} . " -strict_tags < $file |");
+    my $primer3_cmd = $self->cfg->{'Primer3-bin'} . " -strict_tags < $file";
+    my $pid = open my $primer_pipe, '-|', $primer3_cmd;
     my $results = [];
     my $record = 0;
     my $text;
@@ -186,7 +187,7 @@ sub primer3 { # primer3($file);
     my $c = 0;
     my $nc = 0;
     my ($seq_id, $target, $ex_region, $explain_left, $explain_right, $explain_pair, $size_range);
-    while (<PRIMER>) {
+    while (<$primer_pipe>) {
         $text .= $_;
         chomp;
         
@@ -261,12 +262,12 @@ sub primer3 { # primer3($file);
         }
     }
 
-    close(PRIMER);
+    close($primer_pipe);
     unlink $file;
     if (defined $output) {
-        open(OUTPUT, ">> $output");
-        print OUTPUT $text;
-        close(OUTPUT);
+        open my $out_fh, '>>', $output;
+        print {$out_fh} $text;
+        close($out_fh);
     }
     return $results;
 }
