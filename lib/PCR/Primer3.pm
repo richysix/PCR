@@ -12,7 +12,7 @@ use Moose;
 
 =method new
 
-  Usage       : my $primer3_object = PCR::PrimerPair->new(
+  Usage       : my $primer3_object = PCR::Primer3->new(
                     'cfg' => $config,
                 );
   Purpose     : Constructor for creating Primer3 object
@@ -25,7 +25,7 @@ use Moose;
 
 =method cfg
 
-  Usage       : $primer->cfg;
+  Usage       : $primer3_object->cfg;
   Purpose     : Getter/Setter for cfg attribute
   Returns     : HashRef
   Parameters  : HashRef
@@ -83,7 +83,7 @@ sub BUILD {
 
 =method setAmpInput
 
-  Usage       : $primer->setAmpInput;
+  Usage       : $primer3_object->setAmpInput;
   Purpose     : Produce input file for Primer3 containing target sequences and settings
   Returns     : Name of Primer3 input file => Str
   Parameters  : AmpInfo             => ArrayRef [ Amp_ID, Sequence,
@@ -164,7 +164,7 @@ sub setAmpInput { #setAmpInput(@[id, seq], $target_position, $target_size, $prod
 
 =method primer3
 
-  Usage       : $primer->primer3;
+  Usage       : $primer3_object->primer3( $input_file, $output_file );
   Purpose     : Subroutine to run primer3
   Returns     : Primer Pairs        => ArrayRef of PCR::PrimerPair objects
   Parameters  : Primer3 Input File  => Str
