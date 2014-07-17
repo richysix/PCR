@@ -6,6 +6,7 @@ package PCR::Primer3;
 
 use namespace::autoclean;
 use Carp;
+use File::Which;
 use PCR::Primer;
 use PCR::PrimerPair;
 use Moose;
@@ -36,7 +37,7 @@ use Moose;
 
 has 'cfg' => (
     is => 'ro',
-    isa => 'HashRef',
+    isa => 'Crispr::Config',
 );
 
 #################################################################
@@ -48,37 +49,63 @@ has 'cfg' => (
 
 sub BUILD {
     my ( $self, ) = @_;
-    # check that primer3 bin exists and is executable
-    if( !defined $self->cfg->{'Primer3-bin'} ){
-        confess "Config file must contain a path to the primer3 core!\n";
-    }
-    if( !-e $self->cfg->{'Primer3-bin'} || !-x $self->cfg->{'Primer3-bin'} ){
-        confess join(q{ }, "Primer3 binary",
-            $self->cfg->{'Primer3-bin'},
-            "either does not exist or is not executable!", ), "\n";
-    }
-    #check version
-    my $cmd = $self->cfg->{'Primer3-bin'} . ' -h 2>&1 ';
-    open my $primer3_pipe, '-|', $cmd;
-    while( my $line = <$primer3_pipe> ){
-        next if( $line !~ m/This\sis\sprimer3/xms );
-        $line =~ m/release\s(\d+)\.(\d+)\.(\d+)/xms;
-        if( $1 != 2 || $2 < 3 ){
-            die "Version of primer3 must be at least 2.3.0!\n";
+    
+    # check whether primer3 is installed and in the current path
+    my $primer3_path = which( 'primer3_core' );
+    if( !$primer3_path ){
+        # try and find it via config or ENV variable
+        if( defined $self->cfg->{'Primer3-bin'} &&
+           -e $self->cfg->{'Primer3-bin'} && -x $self->cfg->{'Primer3-bin'} ){
+            $primer3_path = $self->cfg->{'Primer3-bin'};
+        }
+        elsif( defined $ENV{PRIMER3_BIN} &&
+           -e $ENV{PRIMER3_BIN} && -x $ENV{PRIMER3_BIN} ){
+            $primer3_path = $ENV{PRIMER3_BIN};
         }
     }
+    if( !$primer3_path ){
+        confess "Could not find primer3!\n";
+    }
+    else{
+        $self->cfg->{'Primer3-bin'} = $primer3_path;
+    }
+    
+    # check version
+    my $version_check_cmd = $primer3_path . ' -h 2>&1 ';
+    open my $primer3_pipe, '-|', $version_check_cmd;
+    while( my $line = <$primer3_pipe> ){
+        next if( $line !~ m/This\sis\sprimer3/xms );
+        $line =~ m/release\s
+                    (\d+)\.(\d+)\.(\d+) # capture digits of version number
+                    /xms;
+        if( $1 < 2 ){ confess "Primer3 needs to be at least version 2.0.0!\n" }
+    }
+    
+    my $primer3_config_path = $primer3_path;
+    $primer3_config_path =~ s/core/config\//;
     
     # check the path to primer config dir is defined and exists
-    if( !defined $self->cfg->{'Primer3-config'} ){
-        confess "Config file must contain a path to the primer3 config directory!\n";
+    if( -e $primer3_config_path && -d $primer3_config_path &&
+        -x $primer3_config_path ){
+        
     }
-    elsif( !-e $self->cfg->{'Primer3-config'} ||
-            !-d $self->cfg->{'Primer3-config'} ||
-            !-e $self->cfg->{'Primer3-config'} ){
+    elsif( defined $self->cfg->{'Primer3-config'} &&
+            -e $self->cfg->{'Primer3-config'} &&
+            -d $self->cfg->{'Primer3-config'} &&
+            -x $self->cfg->{'Primer3-config'} ){
+        $primer3_config_path = $self->cfg->{'Primer3-config'};
+    }
+    elsif( !defined $ENV{PRIMER3_BIN} || !-e $ENV{PRIMER3_BIN}
+               || !-d $ENV{PRIMER3_BIN} || !-x $ENV{PRIMER3_BIN} ){
+        $primer3_config_path = $ENV{PRIMER3_BIN};
+    }
+    else{
         confess join(q{ }, "Primer3 config directory,",
-            $self->cfg->{'Primer3-config'},
-            "does not exist or is not a directory or is not executable!", ), "\n";
+                $self->cfg->{'Primer3-config'},
+                "does not exist or is not a directory or is not executable!", ), "\n";
     }
+    
+    $self->cfg->{'Primer3-config'} = $primer3_config_path;
 }
 
 =method setAmpInput
@@ -243,7 +270,7 @@ sub primer3 { # primer3($file);
         } elsif ($param =~ m/^EXCLUDED_REGION\=(.+)/) {
             $ex_region = [] unless defined $ex_region;
             push(@$ex_region, $1);
-        } elsif ($record && $c =~ m/^\d+$/ && $param !~ m/^SEQUENCE\=/ && $param !~ m/INPUT/ && $param =~ m/^PRIMER_PRODUCT_SIZE\=(.+)$/) {
+        } elsif ($record && $c =~ m/^\d+$/ && $param !~ m/^SEQUENCE\=/ && $param !~ m/INPUT/ && $param =~ m/^PRIMER_PAIR_PRODUCT_SIZE\=(.+)$/) {
             $result->{PAIR}{product_size} = $1;
         } elsif ($record && $c =~ m/^\d+$/ && $param !~ m/^SEQUENCE\=/ && $param !~ m/INPUT/ && $param =~ m/^PRIMER_WARNING\=(.+)$/) {
             $result->{PAIR}{warnings} = $1;

@@ -11,13 +11,6 @@ use PCR::Primer3;
 
 # check it throws if primer3 version is less than 2.3.0
 my $config_hash;
-if( -e '/software/pubseq/bin/primer3-1.1.1/bin/primer3_core' ){
-    $config_hash->{'Primer3-bin'} = '/software/pubseq/bin/primer3-1.1.1/bin/primer3_core';
-    throws_ok{ $primer3_object = PCR::Primer3->new(cfg => $config_hash) }
-        qr/Version\sof\sprimer3\smust\sbe\sat\sleast\s2.3.0!/, 'new called with primer3 version less than 2.3.0';
-    $tests++;
-}
-
 # check config file and read/parse it
 my $config_file = 'config/example_primer3.cfg';
 if( !-e $config_file || !-f $config_file ||
