@@ -1,94 +1,94 @@
 #!/usr/bin/env perl
 # primer.t
+use warnings; use strict;
+
 use Test::More;
 use Test::Exception;
+use Test::MockObject;
+
 use Data::Dumper;
 
 my $tests = 0;
-#plan tests => 1 + 18 + 2 + 18;
 
 use PCR::Primer3;
 
-# check it throws if primer3 version is less than 2.3.0
-my $config_hash;
-# check config file and read/parse it
-my $config_file = 'config/example_primer3.cfg';
-if( !-e $config_file || !-f $config_file ||
-   !-r $config_file || -z $config_file ){
-    die join(q{ }, 'Config file,', $config_file,
-                    "either does not exist or isn't readable or is empty!" ), "\n";
-}
-# open config file and parse
-$config_hash = {};
-open my $cfg_fh, '<', $config_file;
-while( <$cfg_fh> ) {
-    next if /^\s*\#/; # skip comments
-    $_ =~ s/[\n\r]//g;
-    next unless $_ =~ m/^(.+)\t(.+)$/; # key-value pair
-    my ($k, $v) = ($1, $2);
-    $config_hash->{ $k } = $v;
-}
-close ( $cfg_fh );
+# create mock config hash
+my @names = ( qw{ 1_PRIMER_MIN_SIZE 1_PRIMER_OPT_SIZE 1_PRIMER_MAX_SIZE
+    1_PRIMER_MIN_TM 1_PRIMER_OPT_TM 1_PRIMER_MAX_TM 1_PRIMER_PAIR_MAX_DIFF_TM
+    1_PRIMER_MIN_GC 1_PRIMER_OPT_GC_PERCENT 1_PRIMER_MAX_GC
+    1_PRIMER_LIB_AMBIGUITY_CODES_CONSENSUS 1_PRIMER_EXPLAIN_FLAG
+    1_PRIMER_MAX_POLY_X 1_PRIMER_LOWERCASE_MASKING 1_PRIMER_PICK_ANYWAY
+    1_PRIMER_NUM_RETURN } );
 
-# check Primer3-Bin exists
-my $skip;
-if( exists $config_hash->{'Primer3-bin'} ){
-    if( !-e $config_hash->{'Primer3-bin'} ){
-        if( defined $ENV{PRIMER3_BIN} && -e $ENV{PRIMER3_BIN} ){
-            $config_hash->{'Primer3-bin'} = $ENV{PRIMER3_BIN};
-        }
-        else{
-            $skip = 1;
-        }
-    }
-}
-else{
-    if( defined $ENV{PRIMER3_BIN} && -e $ENV{PRIMER3_BIN} ){
-        $config_hash->{'Primer3-bin'} = $ENV{PRIMER3_BIN};
-    }
-    else{
-        $skip = 1;
-    }
+my @values = ( qw { 18 23 27 53 58 65 10 20 50 80 0 1 4 1 1 1 } );
+
+my $cfg_hash;
+for my $i ( 0 .. scalar @names - 1 ){
+    $cfg_hash->{ $names[$i] } = $values[$i];
 }
 
-# check primer3 config exists
-if( exists $config_hash->{'Primer3-config'} ){
-    if( !-e $config_hash->{'Primer3-config'} ||
-        !-x $config_hash->{'Primer3-config'} ){
-        if( defined $ENV{PRIMER3_CONFIG} && -e $ENV{PRIMER3_CONFIG} ){
-            $config_hash->{'Primer3-config'} = $ENV{PRIMER3_CONFIG};
-        }
-        elsif( defined $ENV{PRIMER3_BIN}  && -e $ENV{PRIMER3_BIN} ){
-            $config_hash->{'Primer3-config'} = $ENV{PRIMER3_BIN};
-            $config_hash->{'Primer3-config'} =~ s/primer3_core/primer3_config\//;
-        }
-        else{
-            $skip = 1;
-        }
-    }
-}
-else{
-    if( defined $ENV{PRIMER3_CONFIG} && -e $ENV{PRIMER3_CONFIG} ){
-        $config_hash->{'Primer3-config'} = $ENV{PRIMER3_CONFIG};
-    }
-    elsif( defined $ENV{PRIMER3_BIN}  && -e $ENV{PRIMER3_BIN} ){
-        $config_hash->{'Primer3-config'} = $ENV{PRIMER3_BIN};
-        $config_hash->{'Primer3-config'} =~ s/primer3_core/primer3_config\//;
-    }
-    else{
-        $skip = 1;
-    }
-}
+bless $cfg_hash, 'Crispr::Config';
 
+#
+## check Primer3-Bin exists
+#my $skip;
+#if( exists $config_hash->{'Primer3-bin'} ){
+#    if( !-e $config_hash->{'Primer3-bin'} ){
+#        if( defined $ENV{PRIMER3_BIN} && -e $ENV{PRIMER3_BIN} ){
+#            $config_hash->{'Primer3-bin'} = $ENV{PRIMER3_BIN};
+#        }
+#        else{
+#            $skip = 1;
+#        }
+#    }
+#}
+#else{
+#    if( defined $ENV{PRIMER3_BIN} && -e $ENV{PRIMER3_BIN} ){
+#        $config_hash->{'Primer3-bin'} = $ENV{PRIMER3_BIN};
+#    }
+#    else{
+#        $skip = 1;
+#    }
+#}
+#
+## check primer3 config exists
+#if( exists $config_hash->{'Primer3-config'} ){
+#    if( !-e $config_hash->{'Primer3-config'} ||
+#        !-x $config_hash->{'Primer3-config'} ){
+#        if( defined $ENV{PRIMER3_CONFIG} && -e $ENV{PRIMER3_CONFIG} ){
+#            $config_hash->{'Primer3-config'} = $ENV{PRIMER3_CONFIG};
+#        }
+#        elsif( defined $ENV{PRIMER3_BIN}  && -e $ENV{PRIMER3_BIN} ){
+#            $config_hash->{'Primer3-config'} = $ENV{PRIMER3_BIN};
+#            $config_hash->{'Primer3-config'} =~ s/primer3_core/primer3_config\//;
+#        }
+#        else{
+#            $skip = 1;
+#        }
+#    }
+#}
+#else{
+#    if( defined $ENV{PRIMER3_CONFIG} && -e $ENV{PRIMER3_CONFIG} ){
+#        $config_hash->{'Primer3-config'} = $ENV{PRIMER3_CONFIG};
+#    }
+#    elsif( defined $ENV{PRIMER3_BIN}  && -e $ENV{PRIMER3_BIN} ){
+#        $config_hash->{'Primer3-config'} = $ENV{PRIMER3_BIN};
+#        $config_hash->{'Primer3-config'} =~ s/primer3_core/primer3_config\//;
+#    }
+#    else{
+#        $skip = 1;
+#    }
+#}
+#
 
-if( $skip ){
-    warn "WARNING: Could not detect Primer3. Skipping Primer3 tests!\n",
-        "Set Environment variables PRIMER3_BIN and PRIMER3_CONFIG to run these tests!\n";
-}
-else{
+#if( $skip ){
+#    warn "WARNING: Could not detect Primer3. Skipping Primer3 tests!\n",
+#        "Set Environment variables PRIMER3_BIN and PRIMER3_CONFIG to run these tests!\n";
+#}
+#else{
     # make a new primer3 object
     my $primer3_object = PCR::Primer3->new(
-        cfg => $config_hash,
+        cfg => $cfg_hash,
     );
     
     # 1 test
@@ -144,7 +144,7 @@ else{
     #print Dumper( $results );
     
     unlink( './int_1_primer3.out' );
-}
+#}
 
 done_testing( $tests );
 
