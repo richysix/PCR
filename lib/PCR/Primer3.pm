@@ -95,9 +95,9 @@ sub BUILD {
             -x $self->cfg->{'Primer3-config'} ){
         $primer3_config_path = $self->cfg->{'Primer3-config'};
     }
-    elsif( !defined $ENV{PRIMER3_BIN} || !-e $ENV{PRIMER3_BIN}
-               || !-d $ENV{PRIMER3_BIN} || !-x $ENV{PRIMER3_BIN} ){
-        $primer3_config_path = $ENV{PRIMER3_BIN};
+    elsif( defined $ENV{PRIMER3_CONFIG} && -e $ENV{PRIMER3_CONFIG}
+               && -d $ENV{PRIMER3_CONFIG} && -x $ENV{PRIMER3_CONFIG} ){
+        $primer3_config_path = $ENV{PRIMER3_CONFIG};
     }
     else{
         confess join(q{ }, "Primer3 config directory,",
