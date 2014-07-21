@@ -84,6 +84,8 @@ sub BUILD {
     my $primer3_config_path = $primer3_path;
     $primer3_config_path =~ s/core/config\//;
     
+    my $DEFAULT_PRIMER3_CONFIG_PATH = '/opt/primer3_config/';
+
     # check the path to primer config dir is defined and exists
     if( -e $primer3_config_path && -d $primer3_config_path &&
         -x $primer3_config_path ){
@@ -94,6 +96,12 @@ sub BUILD {
             -d $self->cfg->{'Primer3-config'} &&
             -x $self->cfg->{'Primer3-config'} ){
         $primer3_config_path = $self->cfg->{'Primer3-config'};
+    }
+    elsif( defined $DEFAULT_PRIMER3_CONFIG_PATH &&
+            -e $DEFAULT_PRIMER3_CONFIG_PATH &&
+            -d $DEFAULT_PRIMER3_CONFIG_PATH &&
+            -x $DEFAULT_PRIMER3_CONFIG_PATH ){
+        $primer3_config_path = $DEFAULT_PRIMER3_CONFIG_PATH;
     }
     elsif( defined $ENV{PRIMER3_CONFIG} && -e $ENV{PRIMER3_CONFIG}
                && -d $ENV{PRIMER3_CONFIG} && -x $ENV{PRIMER3_CONFIG} ){
