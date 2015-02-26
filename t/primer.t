@@ -5,7 +5,7 @@ use warnings; use strict;
 use Test::More;
 use Test::Exception;
 
-plan tests => 1 + 18 + 2 + 18;
+plan tests => 1 + 18 + 2 + 18 + 1;
 
 use PCR::Primer;
 
@@ -66,5 +66,8 @@ is( $primer->seq, 'ACGATGACAGATAGACAGAAGTCG', 'check primer seq' );
 is( join(",", $primer->primer_summary), '5:2403050-2403073:-1,ACGATGACAGATAGACAGAAGTCG', 'check primer primer_summary' );
 is( join(",", $primer->primer_info), '5:2403050-2403073:-1,ACGATGACAGATAGACAGAAGTCG,24,58.23,45.5', 'check primer primer_info' );
 is( join(",", $primer->primer_posn), '5:2403050-2403073:1', 'check primer gc_percent' );
+
+# check it throws ok when trying to set sequence via seq - 1 test
+throws_ok { $primer->seq( 'AGATACGATAGAA' ) } qr/read-only accessor/, 'throws on setting seq';
 
 
