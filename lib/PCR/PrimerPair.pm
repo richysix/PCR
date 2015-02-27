@@ -59,6 +59,22 @@ has 'pair_name' => (
 	isa => 'Str',
 );
 
+=method type
+
+  Usage       : $primer->type;
+  Purpose     : Getter/Setter for type attribute
+  Returns     : Str
+  Parameters  : None
+  Throws      : If input is given
+  Comments    : 
+
+=cut
+
+has 'type' => (
+	is => 'rw',
+	isa => 'Str',
+);
+
 =method amplicon_name
 
   Usage       : $primer->amplicon_name;
@@ -254,7 +270,7 @@ has [ 'pair_compl_end', 'pair_compl_any', 'pair_penalty' ] => (
 
   Usage       : $primer->primer_pair_summary;
   Purpose     : Returns a summary about the primer pair
-                Amplicon Name, Product Size, Left Primer Summary, Right Primer Summary
+                Pair Name, Product Size, Left Primer Summary, Right Primer Summary
   Returns     : Array
   Parameters  : None
   Throws      : 
@@ -265,7 +281,7 @@ has [ 'pair_compl_end', 'pair_compl_any', 'pair_penalty' ] => (
 sub primer_pair_summary {
     my ( $self, ) = @_;
     my @info = (
-		$self->amplicon_name,
+		$self->pair_name,
 		$self->product_size,
     );
 	push @info, $self->left_primer->primer_summary;
