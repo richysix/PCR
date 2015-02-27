@@ -92,6 +92,13 @@ has 'sequence' => (
 
 =cut
 
+has 'primer_name' => (
+    is => 'rw',
+    isa => 'Maybe[Str]',
+    lazy => 1,
+    builder => '_build_primer_name',
+);
+
 =method seq_region
 
   Usage       : $primer->seq_region;
@@ -103,7 +110,7 @@ has 'sequence' => (
 
 =cut
 
-has [ 'primer_name', 'seq_region', ] => (
+has 'seq_region' => (
     is => 'rw',
     isa => 'Maybe[Str]',
 );
@@ -318,7 +325,7 @@ sub primer_info {
 
   Usage       : $primer->primer_posn;
   Purpose     : Getter for primer_posn attribute
-  Returns     : Str (CHR:START-END:STRAND)
+  Returns     : Str ([CHR:]START-END[:STRAND])
   Parameters  : None
   Throws      : 
   Comments    : 
@@ -327,11 +334,32 @@ sub primer_info {
 
 sub primer_posn {
 	my ( $self, ) = @_;
-	return join(q{:}, $self->seq_region,
-				join(q{-}, $self->seq_region_start, $self->seq_region_end ),
-				$self->seq_region_strand, );
+    my $posn;
+    if( defined $self->seq_region ){
+        $posn .= $self->seq_region . ":";
+    }
+    $posn .= join(q{-}, $self->seq_region_start, $self->seq_region_end );
+    if( defined $self->seq_region_strand ){
+        $posn .= ":" . $self->seq_region_strand;
+    }
+    return $posn;
 }
 
+=method _build_primer_name
+
+  Usage       : $primer->_build_primer_name;
+  Purpose     : Builds default value of primer_name
+  Returns     : Str ([CHR:]START-END[:STRAND])
+  Parameters  : None
+  Throws      : 
+  Comments    : 
+
+=cut
+
+sub _build_primer_name {
+    my ( $self, ) = @_;
+    return $self->primer_posn;
+}
 __PACKAGE__->meta->make_immutable;
 1;
 
