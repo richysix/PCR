@@ -254,6 +254,18 @@ sub design_primers {
     return $targets;
 }
 
+=func fasta_for_repeatmask
+
+  Usage       : $targets = $self->fasta_for_repeatmask($targets, 'ext', );
+  Purpose     : Produce fasta file for repeatmasking sequence
+  Returns     : ArrayRef
+  Parameters  : Hashref of primers and settings
+                Type of primers ( 'ext', 'int', 'hrm' )
+  Throws      : 
+  Comments    : None
+
+=cut
+
 sub fasta_for_repeatmask {
     my ( $self, $targets, $type ) = @_;
     
@@ -273,6 +285,17 @@ sub fasta_for_repeatmask {
     return $amp_array;
 }
 
+=func repeatmask
+
+  Usage       : $targets = $self->repeatmask($targets, 'ext', );
+  Purpose     : Runs RepeatMasker
+  Returns     : Hashref of primers and settings
+  Parameters  : Hashref of primers and settings
+                Type of primers ( 'ext', 'int', 'hrm' )
+  Throws      : 
+  Comments    : None
+
+=cut
 
 sub repeatmask {
     my ($self, $targets, $type ) = @_;
@@ -305,6 +328,20 @@ sub repeatmask {
     unlink @rmfile;
     return $targets;
 }
+
+=func variationmask
+
+  Usage       : $targets = $self->variationmask($targets, 'ext', $variation_feature_adaptor, $slice_adaptor, );
+  Purpose     : Checks for SNPs and masks sequence
+  Returns     : Hashref of primers and settings
+  Parameters  : Hashref of primers and settings
+                Type of primers ( 'ext', 'int', 'hrm' )
+                Bio::EnsEMBL::Variation::DBSQL::VariationFeatureAdaptor
+                Bio::EnsEMBL::DBSQL::SliceAdaptor
+  Throws      : 
+  Comments    : None
+
+=cut
 
 sub variationmask {
     my ( $self, $targets, $type, $vfa, $slice_adaptor, ) = @_;
@@ -354,6 +391,17 @@ sub variationmask {
     return $targets;
 }
 
+=func print_nested_primers_header
+
+  Usage       : $targets = $self->print_nested_primers_header();
+  Purpose     : Returns header line for nested primers
+  Returns     : Array
+  Parameters  : None
+  Throws      : 
+  Comments    : None
+
+=cut
+
 sub print_nested_primers_header {
     my ( $self, ) = @_;
     return join("\t",
@@ -371,6 +419,18 @@ sub print_nested_primers_header {
     'length4', 'tm4',
     ), "\n";
 }
+
+=func print_nested_primers_to_file
+
+  Usage       : $targets = $self->print_nested_primers_to_file( $targets, $file_handle );
+  Purpose     : prints nested primers to the supplied file handle
+  Returns     : None
+  Parameters  : Hashref of primers and settings
+                FileHandle
+  Throws      : 
+  Comments    : None
+
+=cut
 
 sub print_nested_primers_to_file {
     my ( $self, $targets, $primer_fh ) = @_;
@@ -508,6 +568,19 @@ sub print_nested_primers_to_file {
         }
     }
 }
+
+=func print_nested_primers_to_file_and_plates
+
+  Usage       : $targets = $self->print_nested_primers_to_file_and_plates( $targets, $file_handle, $plate_file_handle );
+  Purpose     : prints nested primers to the supplied file handles
+  Returns     : None
+  Parameters  : Hashref of primers and settings
+                FileHandle
+                FileHandle
+  Throws      : 
+  Comments    : None
+
+=cut
 
 sub print_nested_primers_to_file_and_plates {
     my ( $self, $targets, $primer_fh, $plate_fh ) = @_;
@@ -696,6 +769,17 @@ sub print_nested_primers_to_file_and_plates {
     }
 }
 
+=func print_hrm_primers_header
+
+  Usage       : $targets = $self->print_hrm_primers_header();
+  Purpose     : Returns header line for hrm primers
+  Returns     : Array
+  Parameters  : None
+  Throws      : 
+  Comments    : None
+
+=cut
+
 sub print_hrm_primers_header {
     my ( $self, ) = @_;
     return join("\t",
@@ -710,6 +794,19 @@ sub print_hrm_primers_header {
     'variants_in_product_all', 'variants_in_product_founder',
     ), "\n";
 }
+
+=func print_hrm_primers_to_file
+
+  Usage       : $targets = $self->print_hrm_primers_to_file( $targets, $file_handle, $plate_file_handle, row_index, column_index, plate_number );
+  Purpose     : prints hrm primers to the supplied file handles
+  Returns     : None
+  Parameters  : Hashref of primers and settings
+                FileHandle
+                FileHandle
+  Throws      : 
+  Comments    : None
+
+=cut
 
 sub print_hrm_primers_to_file {
     my ( $self, $targets, $primer_fh, $plate_fh, $rowi, $coli, $plate ) = @_;
@@ -845,6 +942,21 @@ sub print_hrm_primers_to_file {
     return ( $rowi, $coli, $plate );
 }
 
+=func _increment_rows_columns
+
+  Usage       : $targets = $self->_increment_rows_columns( row_index, column_index, plate_number );
+  Purpose     : Increment the plate indices column-wise
+  Returns     : Row_index Int
+                Column Index Int
+                Plate number Int
+  Parameters  : Row_index Int
+                Column Index Int
+                Plate number Int
+  Throws      : 
+  Comments    : None
+
+=cut
+
 sub _increment_rows_columns {
     my ( $self, $rowi, $coli, $plate ) = @_;
     $rowi++;
@@ -853,12 +965,6 @@ sub _increment_rows_columns {
     $plate++ if $coli > 11;
     $coli = 0 if $coli > 11;
     return ( $rowi, $coli, $plate );
-}
-
-sub print_nested_primers_to_file_and_mixed_plates {
-    my ( $self, $targets, $primer_fh, $plate_fh ) = @_;
-    
-    print STDERR "Haven't implemented this yet: print_nested_primers_to_file_and_mixed_plates!\n";
 }
 
 __PACKAGE__->meta->make_immutable;
