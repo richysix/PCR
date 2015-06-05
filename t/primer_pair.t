@@ -56,7 +56,7 @@ foreach my $method ( @methods ) {
 
 # check summary and info methods - 2 tests
 is( join(",", $primer_pair->primer_pair_summary),
-    'ENSDARE00000001,224,5:2403050-2403073:1,ACGATGACAGATAGACAGAAGTCG,5:2403050-2403273:-1,AGATAGACTAGACATTCAGATCAG',
+    '5:2403050-2403273,224,5:2403050-2403073:1,ACGATGACAGATAGACAGAAGTCG,5:2403050-2403273:-1,AGATAGACTAGACATTCAGATCAG',
     'check primer primer_summary' );
 
 is( join(",", $primer_pair->primer_pair_info),
