@@ -40,12 +40,16 @@ has 'cfg' => (
     isa => 'Crispr::Config',
 );
 
-#################################################################
-##  BUILD  ##
-# This is run immediately after object creation.
-# It checks that the Primer3 core and config directory exist.
-#
-#################################################################
+=method BUILD
+
+  Usage       : 
+  Purpose     : This is run immediately after object creation.
+  Returns     : HashRef
+  Parameters  : HashRef
+  Throws      : 
+  Comments    : Checks that the Primer3 core and config directory exist.
+
+=cut
 
 sub BUILD {
     my ( $self, ) = @_;
