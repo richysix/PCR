@@ -25,6 +25,7 @@ For example on bash
 
 ## Installation
 
+Install [Primer3](http://primer3.sourceforge.net/) first.
 Download latest [PCR](https://github.com/richysix/PCR/releases) release and
 install using make.
 
