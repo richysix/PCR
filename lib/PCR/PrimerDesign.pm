@@ -1,5 +1,6 @@
 ## no critic (RequireUseStrict, RequireUseWarnings, RequireTidyCode)
 package PCR::PrimerDesign;
+
 ## use critic
 
 # ABSTRACT: PrimerDesign - object used to design PCR primer pairs
@@ -31,7 +32,7 @@ use PCR::Primer3;
   Purpose     : Getter/Setter for config_file attribute
   Returns     : Config File Name    => Str
   Parameters  : Config File Name    => Str
-  Throws      : 
+  Throws      :
   Comments    : Can not be undef
 
 =cut
@@ -47,7 +48,7 @@ has 'config_file' => (
   Purpose     : Getter/Setter for cfg attribute
   Returns     : HashRef
   Parameters  : HashRef
-  Throws      : 
+  Throws      :
   Comments    : Created from parsing $self->config_file
 
 =cut
@@ -65,8 +66,8 @@ has 'cfg' => (
   Purpose     : Getter/Setter for primer3adaptor attribute
   Returns     : HashRef
   Parameters  : HashRef
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -76,15 +77,15 @@ has 'primer3adaptor' => (
     builder => '_build_adaptor',
     lazy => 1,
 );
-    
+
 =method _build_config
 
   Usage       : $primer->_build_config;
   Purpose     : Getter/Setter for _build_config attribute
   Returns     : HashRef
   Parameters  : HashRef
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -110,7 +111,7 @@ sub _build_config {
         close ( $cfg_fh );
     }
     else{
-        die "Primer3 config file must be set!: $!\n"; 
+        die "Primer3 config file must be set!: $!\n";
     }
     return $cfg;
 };
@@ -121,8 +122,8 @@ sub _build_config {
   Purpose     : Getter/Setter for _build_adaptor attribute
   Returns     : HashRef
   Parameters  : HashRef
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -147,7 +148,7 @@ sub _build_adaptor {
                 Variationmask flag
                 VariationFeature Adaptor
                 Slice Adaptor
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut
@@ -155,7 +156,7 @@ sub _build_adaptor {
 sub design_primers {
     my ( $self, $targets, $type, $size_range, $settings, $round,
         $repeat_mask, $variation_mask, $vfa, $slice_adaptor ) = @_;
-    
+
     # Create FASTA file for RepeatMasker
     my $amps = $self->fasta_for_repeatmask($targets, $type);
     if (scalar(@$amps)){
@@ -165,12 +166,12 @@ sub design_primers {
         if( $variation_mask ){
             $targets = $self->variationmask( $targets, $type, $vfa, $slice_adaptor  );
         }
-        
+
         #print Dumper( %{$targets} );
-        
+
         my $primer3_file = $self->primer3adaptor->setAmpInput($amps, undef, undef, $size_range, $settings, $round, '.');
         my $int_primers  = $self->primer3adaptor->primer3($primer3_file, $type . '_' . $settings . '_primer3.out');
-        
+
         if( $int_primers ){
             foreach my $primer (sort {$a->amplicon_name cmp $b->amplicon_name
                                       || $a->pair_penalty <=> $b->pair_penalty
@@ -182,7 +183,7 @@ sub design_primers {
                 #    $targets->{$id}->{$type . '_start'} + $primer->left_primer->index_pos + $primer->product_size - 1,
                 #    $primer->variants_in_pcr_product,
                 #), "\n";
-                
+
                 if ($primer->left_primer->seq && $primer->right_primer->seq
                     && !defined $targets->{$id}->{$type . '_primers'}) {
                         $primer->type( $type );
@@ -193,40 +194,40 @@ sub design_primers {
                         # start and end
                         $targets->{$id}->{$type . '_start'}    = $targets->{$id}->{$type . '_start'} + $primer->left_primer->index_pos;
                         $targets->{$id}->{$type . '_end'}      = $targets->{$id}->{$type . '_start'} + ( $primer->product_size - 1 );
-                        
+
                         # left primer start and end
                         $targets->{$id}->{$type . '_primers'}->left_primer->seq_region_start( $targets->{$id}->{$type . '_start'} );
                         $targets->{$id}->{$type . '_primers'}->left_primer->seq_region_end( $targets->{$id}->{$type . '_start'} +
                                                                 ( $targets->{$id}->{$type . '_primers'}->left_primer->length - 1 ) );
                         $targets->{$id}->{$type . '_primers'}->left_primer->seq_region_strand( '1' );
-                        
+
                         # right primer start and end
                         $targets->{$id}->{$type . '_primers'}->right_primer->seq_region_start(
                             ( $targets->{$id}->{$type . '_end'} -
                                 ($targets->{$id}->{$type . '_primers'}->right_primer->length - 1) ) );
                         $targets->{$id}->{$type . '_primers'}->right_primer->seq_region_end( $targets->{$id}->{$type . '_end'} );
                         $targets->{$id}->{$type . '_primers'}->right_primer->seq_region_strand( '-1' );
-                        
+
                     }
                     if( $targets->{$id}->{target}->strand eq '-1' ){
                         # start and end
                         $targets->{$id}->{$type . '_end'}    = $targets->{$id}->{$type . '_end'} - $primer->left_primer->index_pos;
                         $targets->{$id}->{$type . '_start'}      = $targets->{$id}->{$type . '_end'} - ( $primer->product_size - 1 );
-                        
+
                         # left primer start and end
                         $targets->{$id}->{$type . '_primers'}->left_primer->seq_region_end( $targets->{$id}->{$type . '_end'} );
                         $targets->{$id}->{$type . '_primers'}->left_primer->seq_region_start( $targets->{$id}->{$type . '_end'} -
                                                                 ( $targets->{$id}->{$type . '_primers'}->left_primer->length - 1 ) );
                         $targets->{$id}->{$type . '_primers'}->left_primer->seq_region_strand( '-1' );
-                        
+
                         # right primer start and end
                         $targets->{$id}->{$type . '_primers'}->right_primer->seq_region_start( $targets->{$id}->{$type . '_start'} );
                         $targets->{$id}->{$type . '_primers'}->right_primer->seq_region_end( $targets->{$id}->{$type . '_start'} +
                                                                 ( $targets->{$id}->{$type . '_primers'}->right_primer->length - 1 ) );
                         $targets->{$id}->{$type . '_primers'}->right_primer->seq_region_strand( '1' );
-                        
+
                     }
-                    
+
                     $targets->{$id}->{$type . '_primers'}->left_primer->primer_id(
                         join(":", $targets->{$id}->{target}->chr || '',
                         join("-", $targets->{$id}->{$type . '_primers'}->left_primer->seq_region_start,
@@ -239,14 +240,14 @@ sub design_primers {
                             $targets->{$id}->{$type . '_primers'}->right_primer->seq_region_end, ),
                         $targets->{$id}->{$type . '_primers'}->right_primer->seq_region_strand )
                     );
-                    
+
                     $targets->{$id}->{$type . '_primers'}->pair_id(
                     join(":", $targets->{$id}->{target}->chr || '',
                                 join("-", $targets->{$id}->{$type . '_start'}, $targets->{$id}->{$type . '_end'}, ),
                                 $targets->{$id}->{target}->strand || '1',
                                 $targets->{$id}->{$type . '_round'}, )
                     );
-                    
+
                 }
             }
         }
@@ -261,16 +262,16 @@ sub design_primers {
   Returns     : ArrayRef
   Parameters  : Hashref of primers and settings
                 Type of primers ( 'ext', 'int', 'hrm' )
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut
 
 sub fasta_for_repeatmask {
     my ( $self, $targets, $type ) = @_;
-    
+
     my $amp_array = [];
-    
+
     open my $fasta_fh, '>',  'RM_' . $type . '.fa';
     foreach my $id ( sort keys %$targets ) {
         if ( defined $targets->{$id}->{"${type}_amp"}
@@ -292,16 +293,16 @@ sub fasta_for_repeatmask {
   Returns     : Hashref of primers and settings
   Parameters  : Hashref of primers and settings
                 Type of primers ( 'ext', 'int', 'hrm' )
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut
 
 sub repeatmask {
     my ($self, $targets, $type ) = @_;
-    
+
     my $pid = system('/software/pubseq/bin/RepeatMasker -xsmall -int RM_' . $type . '.fa');
-    
+
     if (-f 'RM_' . $type . '.fa.out') {
         open my $rm_fh, '<', 'RM_' . $type . '.fa.out' or die "Can't open RM_", $type, ".fa.out: $!\n";
         while (<$rm_fh>) {
@@ -313,7 +314,7 @@ sub repeatmask {
         }
         close($rm_fh);
     }
-    
+
     my @rmfile = (
         'RM_' . $type . '.fa',
         'RM_' . $type . '.fa.ref',
@@ -338,14 +339,14 @@ sub repeatmask {
                 Type of primers ( 'ext', 'int', 'hrm' )
                 Bio::EnsEMBL::Variation::DBSQL::VariationFeatureAdaptor
                 Bio::EnsEMBL::DBSQL::SliceAdaptor
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut
 
 sub variationmask {
     my ( $self, $targets, $type, $vfa, $slice_adaptor, ) = @_;
-    
+
     foreach my $id (sort keys %$targets) {
         # get slice
         my $slice = $slice_adaptor->fetch_by_region( 'toplevel',
@@ -359,7 +360,7 @@ sub variationmask {
             my $vf_key = $vf->seq_region_start() . '-' . $vf->seq_region_end() . '-' . $vf->allele_string();
             next if( exists $vf_seen{ $vf_key } );
             $vf_seen{ $vf_key } = 1;
-            
+
             my $var = $vf->variation();
             if ($vf->var_class eq 'SNP') {
                 push @{ $targets->{$id}->{$type . '_amp'}[5] },
@@ -387,7 +388,7 @@ sub variationmask {
             }
         }
     }
-    
+
     return $targets;
 }
 
@@ -397,7 +398,7 @@ sub variationmask {
   Purpose     : Returns header line for nested primers
   Returns     : Array
   Parameters  : None
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut
@@ -427,18 +428,18 @@ sub print_nested_primers_header {
   Returns     : None
   Parameters  : Hashref of primers and settings
                 FileHandle
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut
 
 sub print_nested_primers_to_file {
     my ( $self, $targets, $primer_fh ) = @_;
-    
+
     my $row = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',];
     my $col = [1..12];
     my ($coli, $rowi, $plate) = (0,0,1);
-    
+
     foreach my $id (sort keys %$targets) {
         my $target_info = $targets->{ $id };
         if (defined $target_info->{ext_primers}) {
@@ -455,7 +456,7 @@ sub print_nested_primers_to_file {
                                 $target_info->{target}->strand,
                                 $target_info->{int_round}, )
                     );
-                
+
                 my ( $ext_left_id, $int_left_id, $int_right_id, $ext_right_id );
                 if ($target_info->{target}->strand > 0) {
                     $target_info->{ext_primers}->left_primer_id(
@@ -517,7 +518,7 @@ sub print_nested_primers_to_file {
                         '1' )
                     );
                 }
-                
+
                 print $primer_fh join("\t",
                     $target_info->{target}->chr,
                     join("-", $target_info->{spacer_target_start_g},
@@ -577,18 +578,18 @@ sub print_nested_primers_to_file {
   Parameters  : Hashref of primers and settings
                 FileHandle
                 FileHandle
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut
 
 sub print_nested_primers_to_file_and_plates {
     my ( $self, $targets, $primer_fh, $plate_fh ) = @_;
-    
+
     my $row = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',];
     my $col = [1..12];
     my ($coli, $rowi, $plate) = (0,0,1);
-    
+
     foreach my $id (sort keys %$targets) {
         my $target_info = $targets->{ $id };
         if (defined $target_info->{ext_primers}) {
@@ -605,7 +606,7 @@ sub print_nested_primers_to_file_and_plates {
                                 $target_info->{target}->strand,
                                 $target_info->{int_round}, )
                     );
-                
+
                 my ( $ext_left_id, $int_left_id, $int_right_id, $ext_right_id );
                 if ($target_info->{target}->strand > 0) {
                     $target_info->{ext_primers}->left_primer_id(
@@ -699,7 +700,7 @@ sub print_nested_primers_to_file_and_plates {
                     $target_info->{ext_primers}->right_primer->seq,
                 ), "\n";
                 ( $rowi, $coli, $plate ) = $self->_increment_rows_columns($rowi, $coli, $plate);
-                
+
                 print $primer_fh join("\t",
                     $target_info->{target}->name,
                     $target_info->{ext_primers}->product_size,
@@ -757,7 +758,7 @@ sub print_nested_primers_to_file_and_plates {
                 ), "\n";
                 ( $rowi, $coli, $plate ) = $self->_increment_rows_columns($rowi, $coli, $plate);
             }
-            
+
             print $primer_fh join("\t",
                 $target_info->{target}->chr,
                 join("-", $target_info->{spacer_target_start_g},
@@ -775,7 +776,7 @@ sub print_nested_primers_to_file_and_plates {
   Purpose     : Returns header line for hrm primers
   Returns     : Array
   Parameters  : None
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut
@@ -803,20 +804,20 @@ sub print_hrm_primers_header {
   Parameters  : Hashref of primers and settings
                 FileHandle
                 FileHandle
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut
 
 sub print_hrm_primers_to_file {
     my ( $self, $targets, $primer_fh, $plate_fh, $rowi, $coli, $plate ) = @_;
-    
+
     my $row = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',];
     my $col = [1..12];
-    $rowi = $rowi   ?   $rowi   :   0;   
+    $rowi = $rowi   ?   $rowi   :   0;
     $coli = $coli   ?   $coli   :   0;
-    $plate = $plate   ?   $plate   :   1;   
-    
+    $plate = $plate   ?   $plate   :   1;
+
     foreach my $id (sort keys %$targets) {
         my $target_info = $targets->{$id};
         if (defined $target_info->{hrm_primers}) {
@@ -892,7 +893,7 @@ sub print_hrm_primers_to_file {
                                 $primer_pair->right_primer->seq,
                             ), "\n";
             ( $rowi, $coli, $plate ) = $self->_increment_rows_columns($rowi, $coli, $plate);
-            
+
             print $primer_fh join("\t",
                 $targets->{$id}->{target}->name,
                 $target_info->{target}->chr,
@@ -930,7 +931,7 @@ sub print_hrm_primers_to_file {
                                 'EMPTY',
                             ), "\n";
             ( $rowi, $coli, $plate ) = $self->_increment_rows_columns($rowi, $coli, $plate);
-            
+
             print $primer_fh join("\t",
                 $target_info->{target}->chr,
                 $target_info->{hrm_cut_site},
@@ -952,7 +953,7 @@ sub print_hrm_primers_to_file {
   Parameters  : Row_index Int
                 Column Index Int
                 Plate number Int
-  Throws      : 
+  Throws      :
   Comments    : None
 
 =cut

@@ -1,5 +1,6 @@
 ## no critic (RequireUseStrict, RequireUseWarnings, RequireTidyCode)
 package PCR::Primer;
+
 ## use critic
 
 # ABSTRACT: Primer object - object representing a PCR primer
@@ -105,7 +106,7 @@ has 'primer_name' => (
   Purpose     : Getter/Setter for seq_region (chromosome/scaffold) attribute
   Returns     : Str
   Parameters  : None
-  Throws      : 
+  Throws      :
   Comments    : Can be undef
 
 =cut
@@ -121,8 +122,8 @@ has 'seq_region' => (
   Purpose     : Getter/Setter for seq_region_strand attribute
   Returns     : Str (must be either a '1' OR '-1')
   Parameters  : None
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -137,8 +138,8 @@ has 'seq_region_strand' => (
   Purpose     : Getter/Setter for seq_region_start (start in genomic co-ordinates) attribute
   Returns     : Int
   Parameters  : None
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -149,7 +150,7 @@ has 'seq_region_strand' => (
   Returns     : Int
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -177,7 +178,7 @@ has [ 'seq_region_start', 'seq_region_end' ] => (
   Returns     : Int
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -193,7 +194,7 @@ has [ 'index_pos', 'length' ] => (
   Returns     : Num
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -204,7 +205,7 @@ has [ 'index_pos', 'length' ] => (
   Returns     : Num
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -215,7 +216,7 @@ has [ 'index_pos', 'length' ] => (
   Returns     : Num
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -226,7 +227,7 @@ has [ 'index_pos', 'length' ] => (
   Returns     : Num
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -237,7 +238,7 @@ has [ 'index_pos', 'length' ] => (
   Returns     : Num
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -248,7 +249,7 @@ has [ 'index_pos', 'length' ] => (
   Returns     : Num
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -284,8 +285,8 @@ sub seq {
   Purpose     : Returns a summary about the primer
   Returns     : Array
   Parameters  : None
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -304,8 +305,8 @@ sub primer_summary {
   Purpose     : Returns information about the primer
   Returns     : Array
   Parameters  : None
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -327,8 +328,8 @@ sub primer_info {
   Purpose     : Getter for primer_posn attribute
   Returns     : Str ([CHR:]START-END[:STRAND])
   Parameters  : None
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -351,8 +352,8 @@ sub primer_posn {
   Purpose     : Builds default value of primer_name
   Returns     : Str ([CHR:]START-END[:STRAND])
   Parameters  : None
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -368,12 +369,12 @@ __END__
 =pod
 
 =head1 NAME
- 
+
 PCR::Primer - Object representing a PCR primer.
 
- 
+
 =head1 SYNOPSIS
- 
+
     use PCR::Primer;
     my $primer = PCR::Primer->new(
         sequence => 'ATGTACCAGGAGAGAAGCCGAGC',
@@ -391,17 +392,16 @@ PCR::Primer - Object representing a PCR primer.
         tm => 57.965,
         gc_percent => 56.522,
     );
-    
+
     # print out target summary or info
     print join("\t", $target->summary ), "\n";
     print join("\t", $target->info ), "\n";
-    
+
 
 =head1 DESCRIPTION
- 
-Object of this class represent a PCR primer. 
- 
+
+Object of this class represent a PCR primer.
+
 =head1 DEPENDENCIES
- 
+
 Moose
- 

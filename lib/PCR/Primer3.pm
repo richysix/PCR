@@ -1,5 +1,6 @@
 ## no critic (RequireUseStrict, RequireUseWarnings, RequireTidyCode)
 package PCR::Primer3;
+
 ## use critic
 
 # ABSTRACT: Primer3 - object used to run Primer3
@@ -30,8 +31,8 @@ use Moose;
   Purpose     : Getter/Setter for cfg attribute
   Returns     : HashRef
   Parameters  : HashRef
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -42,18 +43,18 @@ has 'cfg' => (
 
 =method BUILD
 
-  Usage       : 
+  Usage       :
   Purpose     : This is run immediately after object creation.
   Returns     : HashRef
   Parameters  : HashRef
-  Throws      : 
+  Throws      :
   Comments    : Checks that the Primer3 core and config directory exist.
 
 =cut
 
 sub BUILD {
     my ( $self, ) = @_;
-    
+
     # check whether primer3 is installed and in the current path
     my $primer3_path = which( 'primer3_core' );
     if( !$primer3_path ){
@@ -73,7 +74,7 @@ sub BUILD {
     else{
         $self->cfg->{'Primer3-bin'} = $primer3_path;
     }
-    
+
     # check version
     my $version_check_cmd = $primer3_path . ' -h 2>&1 ';
     open my $primer3_pipe, '-|', $version_check_cmd;
@@ -84,16 +85,16 @@ sub BUILD {
                     /xms;
         if( $1 < 2 ){ confess "Primer3 needs to be at least version 2.0.0!\n" }
     }
-    
+
     my $primer3_config_path = $primer3_path;
     $primer3_config_path =~ s/core/config\//;
-    
+
     my $DEFAULT_PRIMER3_CONFIG_PATH = '/opt/primer3_config/';
 
     # check the path to primer config dir is defined and exists
     if( -e $primer3_config_path && -d $primer3_config_path &&
         -x $primer3_config_path ){
-        
+
     }
     elsif( defined $self->cfg->{'Primer3-config'} &&
             -e $self->cfg->{'Primer3-config'} &&
@@ -116,7 +117,7 @@ sub BUILD {
                 $self->cfg->{'Primer3-config'},
                 "does not exist or is not a directory or is not executable!", ), "\n";
     }
-    
+
     $self->cfg->{'Primer3-config'} = $primer3_config_path;
 }
 
@@ -137,8 +138,8 @@ sub BUILD {
                 Settings            => Int
                 Design Round        => Int
                 Output Directory    => Str
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -179,7 +180,7 @@ sub setAmpInput { #setAmpInput(@[id, seq], $target_position, $target_size, $prod
         print {$out_fh} "PRIMER_LEFT_INPUT=" . $input->[2] ."\n" if defined $input->[2];
         print {$out_fh} "PRIMER_RIGHT_INPUT=" . $input->[3] ."\n" if defined $input->[3];
         print {$out_fh} "INCLUDED_REGION=" . $input->[6][0] . "," . $input->[6][1] . "\n" if defined $input->[6];
-        
+
         if (defined $target_pos && defined $target_size) {
             print {$out_fh} "SEQUENCE_TARGET=" . $target_pos . "," . $target_size . "\n" if defined $target_pos && defined $target_size;
         } elsif (defined $input->[4]) {
@@ -187,17 +188,17 @@ sub setAmpInput { #setAmpInput(@[id, seq], $target_position, $target_size, $prod
                 print {$out_fh} "SEQUENCE_TARGET=" . $_->[0] . "," . $_->[1] . "\n";
             }
         }
-        
+
         if (defined $input->[5]) {
             foreach (@{$input->[5]}) {
                 print {$out_fh} "SEQUENCE_EXCLUDED_REGION=" . $_->[0] . "," . $_->[1] . "\n";
             }
         }
-        
+
         print {$out_fh} "=\n";
     }
     close($out_fh);
-    
+
     return $file;
 }
 
@@ -208,8 +209,8 @@ sub setAmpInput { #setAmpInput(@[id, seq], $target_position, $target_size, $prod
   Returns     : Primer Pairs        => ArrayRef of PCR::PrimerPair objects
   Parameters  : Primer3 Input File  => Str
                 Primer3 Output File => Str
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -229,13 +230,13 @@ sub primer3 { # primer3($file);
     while (<$primer_pipe>) {
         $text .= $_;
         chomp;
-        
+
         my $param = $_;
         if ($param =~ m/\_(\d+)\w*\=/) {
             $nc = $1;
             $param =~  s/\_(\d+)//;
         }
-        
+
         if ($c ne $nc || $param =~ m/^\=$/) {
             $result->{PAIR}{amplicon_name} = $seq_id if defined $seq_id;
             $result->{PAIR}{target} = $target if defined $target;
@@ -266,11 +267,11 @@ sub primer3 { # primer3($file);
             }
         } elsif ($param =~ m/SEQUENCE_ID\=(.+)/) {
                 $seq_id = $1;
-                $record = 1; 
+                $record = 1;
         } elsif ($param =~ m/^SEQUENCE/) {
             $record = 1;
         }
-        
+
         if ($param =~ m/PRIMER_PRODUCT_SIZE_RANGE\=(.+)/) {
             $size_range = $1;
         } elsif ($param =~ m/PRIMER\_(\w+)\_EXPLAIN\=(.+)/) {

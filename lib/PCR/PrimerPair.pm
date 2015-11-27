@@ -1,5 +1,6 @@
 ## no critic (RequireUseStrict, RequireUseWarnings, RequireTidyCode)
 package PCR::PrimerPair;
+
 ## use critic
 
 # ABSTRACT: PrimerPair object - object representing a pair of PCR primers
@@ -49,8 +50,8 @@ use Moose;
   Purpose     : Getter/Setter for pair_name attribute
   Returns     : Str
   Parameters  : None
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -66,7 +67,7 @@ has 'pair_name' => (
   Returns     : Str
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -93,7 +94,7 @@ has 'type' => (
   Returns     : Str (must be a valid DNA string)
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -104,7 +105,7 @@ has 'type' => (
   Returns     : Str
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -115,7 +116,7 @@ has 'type' => (
   Returns     : Str
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -127,7 +128,7 @@ has 'type' => (
   Returns     : Str
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -143,7 +144,7 @@ has [ 'amplicon_name', 'warnings', 'target', 'explain', 'product_size_range' ] =
   Returns     : ArrayRef
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -159,7 +160,7 @@ has 'excluded_regions' => (
   Returns     : Int
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -170,7 +171,7 @@ has 'excluded_regions' => (
   Returns     : Int
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -181,7 +182,7 @@ has 'excluded_regions' => (
   Returns     : Int
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -197,7 +198,7 @@ has [ 'product_size', 'query_slice_start', 'query_slice_end' ] => (
   Returns     : PCR::Primer
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -216,7 +217,7 @@ has 'left_primer' => (
   Returns     : PCR::Primer
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -235,7 +236,7 @@ has 'right_primer' => (
   Returns     : Num
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -246,7 +247,7 @@ has 'right_primer' => (
   Returns     : Num
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -257,7 +258,7 @@ has 'right_primer' => (
   Returns     : Num
   Parameters  : None
   Throws      : If input is given
-  Comments    : 
+  Comments    :
 
 =cut
 
@@ -273,8 +274,8 @@ has [ 'pair_compl_end', 'pair_compl_any', 'pair_penalty' ] => (
                 Pair Name, Product Size, Left Primer Summary, Right Primer Summary
   Returns     : Array
   Parameters  : None
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -299,8 +300,8 @@ sub primer_pair_summary {
                 Left Primer Info, Right Primer Info
   Returns     : Array
   Parameters  : None
-  Throws      : 
-  Comments    : 
+  Throws      :
+  Comments    :
 
 =cut
 
@@ -326,11 +327,11 @@ __END__
 =pod
 
 =head1 NAME
- 
+
 PCR::PrimerPair - Object representing a PCR primer pair.
- 
+
 =head1 SYNOPSIS
- 
+
     use <PCR::Primer_pair>;
     my $primer_pair = PCR::Primer_pair->new(
         'pair_name' => '5:12345152-12345819:1:1',
@@ -346,11 +347,10 @@ PCR::PrimerPair - Object representing a PCR primer pair.
         'pair_compl_any' => '3.00',
         'pair_penalty' => '0.1303'
     );
-    
-  
+
+
 =head1 DESCRIPTION
- 
+
 Objects of this class represent a primer pair.
 The object contains the objects for the two primers that make up the pair as well
 as other information about the pair.
-

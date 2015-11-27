@@ -1,8 +1,9 @@
 ## no critic (RequireUseStrict, RequireUseWarnings, RequireTidyCode)
 package PCR;
+
 ## use critic
 
-# ABSTRACT: Abstract
+# ABSTRACT: PCR primer design using Primer3
 
 use warnings;
 use strict;
