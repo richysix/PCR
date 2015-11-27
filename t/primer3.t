@@ -39,21 +39,31 @@ if( !$primer3_path ){
     else{
         $skip = 1;
     }
-}
-
-# check primer3 config exists
-if( defined $ENV{PRIMER3_CONFIG} && -e $ENV{PRIMER3_CONFIG} ){
-        $cfg_hash->{'Primer3-config'} = $ENV{PRIMER3_CONFIG};
-}
-elsif( defined $ENV{PRIMER3_BIN}  && -e $ENV{PRIMER3_BIN} ){
-    my $primer3_config = $ENV{PRIMER3_BIN};
-    $primer3_config =~ s/primer3_core/primer3_config\//;
-    if( -e $primer3_config ){
-        $cfg_hash->{'Primer3-config'} = $primer3_config;
+    # check primer3 config exists
+    if( defined $ENV{PRIMER3_CONFIG} && -e $ENV{PRIMER3_CONFIG} ){
+            $cfg_hash->{'Primer3-config'} = $ENV{PRIMER3_CONFIG};
+    }
+    elsif( defined $ENV{PRIMER3_BIN}  && -e $ENV{PRIMER3_BIN} ){
+        my $primer3_config = $ENV{PRIMER3_BIN};
+        $primer3_config =~ s/primer3_core/primer3_config\//;
+        if( -e $primer3_config ){
+            $cfg_hash->{'Primer3-config'} = $primer3_config;
+        }
+        else{
+            $skip = 1;
+        }
+    }
+    else{
+       $skip = 1;
     }
 }
 else{
-   $skip = 1;
+    # check primer3 config exists as well
+    my $primer3_config = $primer3_path;
+    $primer3_config =~ s/primer3_core/primer3_config\//;
+    if( !-e $primer3_config ){
+        $skip = 1;
+    }
 }
 
 my $warning = "WARNING: Could not detect Primer3. Skipping Primer3 tests!\n" .
